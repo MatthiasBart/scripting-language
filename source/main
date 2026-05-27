@@ -1,0 +1,7 @@
+sqrt
+
+main {
+    t,v,b
+    |
+    t 3 2
+}
