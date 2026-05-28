@@ -1,4 +1,7 @@
-interpret: build
+
+default: build interpret
+
+interpret: 
 	- docker run interpreter
 
 build: 
