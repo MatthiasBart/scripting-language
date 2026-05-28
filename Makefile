@@ -6,3 +6,6 @@ interpret:
 
 build: 
 	- docker build --tag interpreter . 
+
+i: interpret
+b: build
