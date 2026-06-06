@@ -1,24 +1,52 @@
 package parser;
 
 import lexer.tokens.Token;
+import lexer.tokens.TokenType;
 
 import java.util.List;
 
+
 public class Parser {
 
-    public interface Node {
-        String TokenLiteral();
-    }
-    public interface Statement extends Node {
-        void statementNode();
-    }
-    public interface Expression {
-        Node
-        expressionNode()
-    }
-}
+    public Parser() {
 
-    public AST parse(List<Token>) {
+    }
+
+    public Program parse(List<Token> tokens) {
+        if(tokens.isEmpty()) return new Program();
+        System.out.println("parsing");
+        int position = 0;
+        Token peekToken;
+
+        Program program = new Program();
+
+        for (Token currToken : tokens) {
+            peekToken = position + 1 < tokens.size()
+                    ? tokens.get(position+1)
+                    : null;
+
+            Statement stmt = parseStatement(currToken, peekToken);
+
+            if (stmt != null) {
+                program.getStatements().add(stmt);
+            }
+
+            position += 1;
+        }
+
+        return program;
+
+    }
+
+    private Statement parseStatement(Token currToken, Token peekToken) {
+        if (currToken.type() == TokenType.IDENTIFIER && peekToken.type() == TokenType.ASSIGNMENT) {
+            return parseAssignmentStatement();
+        }
+        return null;
+    }
+    private Statement parseAssignmentStatement() {
+        return null;
+    }
         /*
 
         2.4 - Parser’s first steps: parsing let statements
@@ -677,3 +705,5 @@ we can define the necessary parts of an AST that’s able to accurately represen
 Here is a fully valid program written in Monkey:
     }
 }
+
+*/

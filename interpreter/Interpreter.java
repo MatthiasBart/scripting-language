@@ -4,11 +4,12 @@ import java.util.List;
 
 import lexer.Lexer;
 import lexer.tokens.Token;
+import parser.Parser;
 
 public class Interpreter {
     private static SourceReader sourceReader;
 
-    private List<Token> tokens = new ArrayList<>();
+    private static List<Token> tokens = new ArrayList<>();
 
     public static void main(String[] args) {
         if (args.length != 1) {
@@ -22,11 +23,14 @@ public class Interpreter {
             String content = sourceReader.getIncludes().get(include);
 
             System.out.println("Running lexer on included file: " + include);
-            tokens.addAll(Lexer.tokenize(content));
+            tokens.addAll(new Lexer(content).tokenize());
         }
 
         System.out.println("main: \n" + sourceReader.getMain() + "\n");
         System.out.println("Running lexer on main");
-        tokens.addAll(Lexer.tokenize(sourceReader.getMain()));
+        tokens.addAll(new Lexer(sourceReader.getMain()).tokenize());
+
+        Parser parser = new Parser();
+        parser.parse(tokens);
     }
 }
