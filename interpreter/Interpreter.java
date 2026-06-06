@@ -31,12 +31,8 @@ public class Interpreter {
         System.out.println("Running lexer on main");
         tokens.addAll(new Lexer(sourceReader.getMain(), "main").tokenize());
 
-        Parser parser = new Parser();
-        List<Token> tokens = List.of(
-                new Token(TokenType.IDENTIFIER, "x", null),
-                new Token(TokenType.ASSIGNMENT, "=", null),
-                new Token(TokenType.INT, "5", null)
-        );
-        parser.parse(tokens);
+        Parser parser = new Parser(tokens);
+
+        parser.parse();
     }
 }

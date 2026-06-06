@@ -1,6 +1,7 @@
 package parser;
 
 import lexer.tokens.Token;
+import parser.expressions.Expression;
 
 public class Identifier implements Expression {
     private final Token token;

@@ -2,31 +2,22 @@ package parser;
 
 import lexer.tokens.Token;
 import lexer.tokens.TokenType;
-import parser.statements.AssignmentStatement;
-import parser.statements.Statement;
+import parser.expressions.Expression;
+import parser.expressions.IntegerLiteral;
+import parser.expressions.StringLiteral;
+import parser.statements.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
 public class Parser {
-    Token peekToken;
-    Token currToken;
-    List<Token> tokens;
-    int position = 0;
+
+    private List<Token> tokens;
+
+    private int position = 0;
 
     public Parser() {
-
-    }
-
-    private void nextToken() {
-        currToken = peekToken;
-
-        if (position < tokens.size()) {
-            peekToken = tokens.get(position);
-            position++;
-        } else {
-            peekToken = null;
-        }
     }
 
     public Parser(List<Token> tokens) {
@@ -36,53 +27,166 @@ public class Parser {
     public Program parse() {
         System.out.println("Start parsing");
 
-        if (tokens.isEmpty()) return new Program();
+        List<Procedure> procedures = new ArrayList<>();
 
-        Program program = new Program();
-        while(position < tokens.size()) {
-            Statement stmt = parseStatement(currToken, peekToken);
-            if (stmt != null) {
-                program.getStatements().add(stmt);
-            }
-
-            nextToken();
+        // parse procedure definitions
+        while (currentToken().type() != TokenType.BODY_LEFT) {
+            Procedure procedure = parseProcedure();
+            procedures.add(procedure);
         }
 
-        return program;
+        Body body = parseBody();
 
+        return new Program(procedures, body);
     }
 
-    private Statement parseStatement(Token currToken, Token peekToken) {
-        if (currToken.type() == TokenType.IDENTIFIER && peekToken.type() == TokenType.ASSIGNMENT) {
-            return parseAssignmentStatement();
+    private Procedure parseProcedure() {
+        Identifier identifier = parseIdentifier();
+        checkNextTokenType(TokenType.PROC_PARAM_LEFT);
+
+        List<Identifier> valueParameters = parseParameters();
+        List<Identifier> refParameters = parseParameters();
+        Body body = parseBody();
+
+        return new Procedure(identifier, valueParameters, refParameters, body);
+    }
+
+    private List<Identifier> parseParameters() {
+        List<Identifier> parameters = new ArrayList<>();
+
+        Token currentToken = currentTokenAndInc();
+        while (currentToken.type() != TokenType.SEPARATOR && currentToken.type() != TokenType.PROC_PARAM_RIGHT) {
+            Identifier identifier = new Identifier(currentToken);
+            currentToken = currentTokenAndInc();
+            parameters.add(identifier);
         }
-        return null;
+
+        return parameters;
+    }
+
+    private Body parseBody() {
+        checkNextTokenType(TokenType.BODY_LEFT);
+
+        // local variables for body reuses parameters because same seperator
+        List<Identifier> variables = parseParameters();
+
+        List<Statement> statements = new ArrayList<>();
+        Token nextToken = nextToken();
+        while (nextToken.type() != TokenType.BODY_RIGHT) {
+            statements.add(parseStatement());
+            nextToken = nextToken();
+        }
+
+        checkNextTokenType(TokenType.BODY_LEFT);
+
+        return new Body(variables, statements);
+    }
+
+    private Token nextToken() {
+        if (position == tokens.size() - 1) {
+            throw new ParsingException("Tokens out of bounds", currentToken());
+        }
+        return tokens.get(position + 1);
+    }
+
+    private Token currentToken() {
+        if (position == tokens.size() - 1) {
+            throw new ParsingException("Tokens out of bounds", currentToken());
+        }
+        return tokens.get(position);
+    }
+
+    private Token currentTokenAndInc() {
+        return tokens.get(position++);
+    }
+
+    private Identifier parseIdentifier() {
+        return new Identifier(currentTokenAndInc());
+    }
+
+    private Statement parseStatement() {
+        // second token from statement beginning defines statement type
+        Token token = tokens.get(position + 2);
+        return switch (token.type()) {
+            case TokenType.COND_START -> parseConditionalStatement();
+            case TokenType.LOOP_START -> parseLoopStartStatement();
+            case TokenType.LOOP_BREAK -> parseLoopBreakStatement();
+            case TokenType.PROC_PARAM_LEFT -> parseProcedureCallStatement();
+            case TokenType.ASSIGNMENT -> parseAssignmentStatement();
+            default -> throw new ParsingException("", token);
+        };
+    }
+
+    private LoopStart parseLoopStartStatement() {
+        Identifier identifier = parseIdentifier();
+        checkNextTokenType(TokenType.LOOP_START);
+        Body body = parseBody();
+        return new LoopStart(identifier, body);
+    }
+
+    private LoopBreak parseLoopBreakStatement() {
+        Identifier identifier = parseIdentifier();
+        checkNextTokenType(TokenType.LOOP_BREAK);
+        return new LoopBreak(identifier);
+    }
+
+    private ProcedureCall parseProcedureCallStatement() {
+        Identifier identifier = parseIdentifier();
+        checkNextTokenType(TokenType.PROC_PARAM_LEFT);
+
+        List<Expression> arguments = new ArrayList<>();
+        Token nextToken = nextToken();
+        while (nextToken.type() != TokenType.SEPARATOR) {
+            Expression expression = parseExpression();
+            arguments.add(expression);
+            nextToken = nextToken();
+        }
+
+        checkNextTokenType(TokenType.SEPARATOR);
+
+        List<Identifier> refVariables = parseParameters();
+
+        return new ProcedureCall(identifier, arguments, refVariables);
+    }
+
+    private Conditional parseConditionalStatement() {
+        Identifier condition = parseIdentifier();
+        checkNextTokenType(TokenType.COND_START);
+        Body thenBody = parseBody();
+        Body elseBody = null;
+
+        if (nextToken().type() == TokenType.COND_SEPARATOR) {
+            checkNextTokenType(TokenType.COND_SEPARATOR);
+            elseBody = parseBody();
+        }
+
+        return new Conditional(condition, thenBody, elseBody);
+    }
+
+    private void checkNextTokenType(TokenType type) {
+        Token currentToken = currentTokenAndInc();
+        if (currentToken.type() != type) {
+            throw new ParsingException("Expected symbol " + type.getSymbol(), currentToken);
+        }
     }
 
     private Statement parseAssignmentStatement() {
-        Identifier name = new Identifier(currToken);
+        Identifier identifier = parseIdentifier();
 
-        // move from IDENTIFIER to ASSIGNMENT
-        nextToken();
+        checkNextTokenType(TokenType.ASSIGNMENT);
 
-        // move from ASSIGNMENT to expression start
-        nextToken();
-
-        Expression value = parseExpression(currToken);
-
-        return new AssignmentStatement(name, value);
+        Expression value = parseExpression();
+        return new Assignment(identifier, value);
 
     }
-    private Expression parseExpression(Token token) {
+
+    private Expression parseExpression() {
+        Token token = currentTokenAndInc();
         return switch (token.type()) {
             case INT -> new IntegerLiteral(token);
-
             case STRING -> new StringLiteral(token);
-
-            case PAIR_LEFT -> throw new RuntimeException("Not yet implemented");
-
+            case PAIR_LEFT -> throw new RuntimeException("Not yet implemented"); // TODO: implement pairs
             case IDENTIFIER -> new Identifier(token);
-
             default -> throw new ParsingException("Expected INT, STRING, [, ] or an IDENTIFIER", token);
         };
     }
