@@ -14,12 +14,9 @@ import java.util.List;
 
 public class Parser {
 
-    private List<Token> tokens;
+    private final List<Token> tokens;
 
     private int position = 0;
-
-    public Parser() {
-    }
 
     public Parser(List<Token> tokens) {
         this.tokens = tokens;
@@ -37,6 +34,47 @@ public class Parser {
         Body body = parseBody();
 
         return new Program(procedures, body);
+    }
+
+    // ==== Token helpers ====
+
+    private Token currentToken() throws ParsingException {
+        return getTokenAt(position);
+    }
+
+    private Token currentTokenAndInc() {
+        Token token = currentToken();
+        position++;
+        return token;
+    }
+
+    /**
+     * @return token at given index
+     * @throws ParsingException when index is out of bounds
+     */
+    private Token getTokenAt(int index) {
+        if (index >= tokens.size()) {
+            throw new ParsingException("Tokens out of bounds", tokens.get(index - 1));
+        }
+        return tokens.get(index);
+    }
+
+    /**
+     * validates if the current has the given type
+     *
+     * @throws ParsingException when current position is out of bounds
+     */
+    private void checkCurrentTokenTypeAndInc(TokenType type) {
+        Token currentToken = currentTokenAndInc();
+        if (currentToken.type() != type) {
+            throw new ParsingException("Expected symbol " + type.getSymbol(), currentToken);
+        }
+    }
+
+    // ==== parsing helpers ====
+
+    private Identifier parseIdentifier() {
+        return new Identifier(currentTokenAndInc());
     }
 
     private Procedure parseProcedure() {
@@ -69,7 +107,7 @@ public class Parser {
     private Body parseBody() {
         checkCurrentTokenTypeAndInc(TokenType.BODY_LEFT);
 
-        // local variables for body reuses parameters because same seperator
+        // local variables for body reuses parameters because same separator
         List<Identifier> variables = parseParameters();
         checkCurrentTokenTypeAndInc(TokenType.SEPARATOR);
 
@@ -84,38 +122,39 @@ public class Parser {
         return new Body(variables, statements);
     }
 
-    private Token nextToken() {
-        if (position + 1 >= tokens.size()) {
-            throw new ParsingException("Tokens out of bounds", currentToken());
-        }
-        return tokens.get(position + 1);
+    // ==== Expressions ====
+
+    private Expression parseExpression() {
+        Token token = currentTokenAndInc();
+        return switch (token.type()) {
+            case INT -> new IntegerLiteral(token);
+            case STRING -> new StringLiteral(token);
+            case PAIR_LEFT -> parsePairLiteral();
+            case IDENTIFIER -> new Identifier(token);
+            default -> throw new ParsingException("Expected INT, STRING, [, ] or an IDENTIFIER", token);
+        };
     }
 
-    private Token currentToken() {
-        if (position >= tokens.size()) {
-            throw new ParsingException("Tokens out of bounds", tokens.get(position - 1));
-        }
-        return tokens.get(position);
+    private PairLiteral parsePairLiteral() {
+        Expression left = parseExpression();
+        checkCurrentTokenTypeAndInc(TokenType.SEPARATOR);
+        Expression right = parseExpression();
+        checkCurrentTokenTypeAndInc(TokenType.PAIR_RIGHT);
+        return new PairLiteral(left, right);
     }
 
-    private Token currentTokenAndInc() {
-        return tokens.get(position++);
-    }
-
-    private Identifier parseIdentifier() {
-        return new Identifier(currentTokenAndInc());
-    }
+    // ==== Statements ====
 
     private Statement parseStatement() {
         // second token from statement beginning defines statement type
-        Token token = tokens.get(position + 1);
+        Token token = getTokenAt(position + 1);
         return switch (token.type()) {
             case TokenType.COND_START -> parseConditionalStatement();
             case TokenType.LOOP_START -> parseLoopStartStatement();
             case TokenType.LOOP_BREAK -> parseLoopBreakStatement();
             case TokenType.PROC_PARAM_LEFT -> parseProcedureCallStatement();
             case TokenType.ASSIGNMENT -> parseAssignmentStatement();
-            default -> throw new ParsingException("", token);
+            default -> throw new ParsingException("Unexpected token at for statement", token);
         };
     }
 
@@ -138,7 +177,7 @@ public class Parser {
 
         List<Expression> arguments = new ArrayList<>();
 
-        while(currentToken().type() != TokenType.SEPARATOR) {
+        while (currentToken().type() != TokenType.SEPARATOR) {
             Expression expression = parseExpression();
             arguments.add(expression);
         }
@@ -165,37 +204,10 @@ public class Parser {
         return new Conditional(condition, thenBody, elseBody);
     }
 
-    private void checkCurrentTokenTypeAndInc(TokenType type) {
-        Token currentToken = currentTokenAndInc();
-        if (currentToken.type() != type) {
-            throw new ParsingException("Expected symbol " + type.getSymbol(), currentToken);
-        }
-    }
-
     private Statement parseAssignmentStatement() {
         Identifier identifier = parseIdentifier();
-
         checkCurrentTokenTypeAndInc(TokenType.ASSIGNMENT);
-
         Expression value = parseExpression();
         return new Assignment(identifier, value);
-
-    }
-
-    private Expression parseExpression() {
-        Token token = currentTokenAndInc();
-        return switch (token.type()) {
-            case INT -> new IntegerLiteral(token);
-            case STRING -> new StringLiteral(token);
-            case PAIR_LEFT -> {
-                Expression left = parseExpression();
-                checkCurrentTokenTypeAndInc(TokenType.SEPARATOR);
-                Expression right = parseExpression();
-                checkCurrentTokenTypeAndInc(TokenType.PAIR_RIGHT);
-                yield new PairLiteral(left, right);
-            }
-            case IDENTIFIER -> new Identifier(token);
-            default -> throw new ParsingException("Expected INT, STRING, [, ] or an IDENTIFIER", token);
-        };
     }
 }
