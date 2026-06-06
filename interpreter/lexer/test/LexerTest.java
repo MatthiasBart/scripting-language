@@ -5,12 +5,12 @@ import lexer.tokens.Token;
 import lexer.tokens.TokenType;
 
 import java.util.List;
-
+import test.InterpreterTests;
 public class LexerTest {
-
-    public static void main(String[] args) {
+    public static void exec() {
+        System.out.println("Lexer:");
         test("[abc]", TokenType.PAIR_LEFT, TokenType.IDENTIFIER, TokenType.PAIR_RIGHT);
-        test("{foo = 42}", TokenType.BODY_LEFT, TokenType.IDENTIFIER, TokenType.ASSIGNMENT, TokenType.INT, TokenType.BODY_RIGHT);
+        test("{foo      = 42}", TokenType.BODY_LEFT, TokenType.IDENTIFIER, TokenType.ASSIGNMENT, TokenType.INT, TokenType.BODY_RIGHT);
         test("\"hello\"", TokenType.STRING);
         test("@(bar)", TokenType.LOOP_START, TokenType.PROC_PARAM_LEFT, TokenType.IDENTIFIER, TokenType.PROC_PARAM_RIGHT);
         test("? x : y", TokenType.COND_START, TokenType.IDENTIFIER, TokenType.COND_SEPARATOR, TokenType.IDENTIFIER);
@@ -29,12 +29,11 @@ public class LexerTest {
                         : "Expected %s at [%d], got %s".formatted(expected[i], i, tokens.get(i).type());
             }
 
-            System.out.println("PASS: " + input);
-
+            InterpreterTests.pass(input);
         } catch (AssertionError e) {
-            System.out.println("FAIL: " + input + " → " + e.getMessage());
+            InterpreterTests.fail(input, e.getMessage());
         } catch (Exception e) {
-            System.out.println("ERROR: " + input + " → " + e.getMessage());
+            InterpreterTests.fail(input, e.getMessage());
         }
     }
 }

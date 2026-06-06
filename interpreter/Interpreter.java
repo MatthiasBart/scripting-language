@@ -30,6 +30,7 @@ public class Interpreter {
         System.out.println("main: \n" + sourceReader.getMain() + "\n");
         System.out.println("Running lexer on main");
         tokens.addAll(new Lexer(sourceReader.getMain(), "main").tokenize());
+
         Parser parser = new Parser();
         List<Token> tokens = List.of(
                 new Token(TokenType.IDENTIFIER, "x", null),

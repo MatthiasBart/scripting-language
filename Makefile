@@ -1,11 +1,15 @@
+folder ?= .source
 
-default: build interpret
+default: build test
 
-interpret: 
-	- docker run interpreter
+build:
+	javac -d out $(shell find . -name "*.java")
 
-build: 
-	- docker build --tag interpreter . 
+test:
+	java -ea -cp out test.InterpreterTests
 
-i: interpret
+run:
+	java -cp out Interpreter $(folder)
+
 b: build
+t: test
