@@ -2,11 +2,8 @@ package parser.expressions;
 
 import lexer.tokens.Token;
 
-public class StringLiteral implements Expression {
-
-    private final String value;
-
+public record StringLiteral(String value) implements Expression {
     public StringLiteral(Token token) {
-        this.value = token.value();
+        this(token.value());
     }
 }

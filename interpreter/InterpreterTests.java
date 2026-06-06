@@ -1,5 +1,6 @@
 package test;
 import lexer.test.LexerTest;
+import parser.test.ParserTest;
 
 public class InterpreterTests {
     private static int passed = 0;
@@ -7,6 +8,7 @@ public class InterpreterTests {
 
     public static void main(String[] args) {
         LexerTest.exec();
+        ParserTest.exec();
 
         System.out.println("\n=== Results: " + passed + " passed, " + failed + " failed ===");
     }

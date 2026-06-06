@@ -3,13 +3,14 @@ package parser.expressions;
 import lexer.tokens.Token;
 import parser.ParsingException;
 
-public class IntegerLiteral implements Expression {
+public record IntegerLiteral(int value) implements Expression {
+    public IntegerLiteral(Token token) {
+        this(parseValue(token));
+    }
 
-    private final int value;
-
-    public IntegerLiteral(Token token) throws ParsingException {
+    private static int parseValue(Token token) {
         try {
-            this.value = Integer.parseInt(token.value());
+            return Integer.parseInt(token.value());
         } catch (NumberFormatException e) {
             throw new ParsingException("Could not parse Integer", token);
         }

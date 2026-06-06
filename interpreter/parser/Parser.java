@@ -4,6 +4,7 @@ import lexer.tokens.Token;
 import lexer.tokens.TokenType;
 import parser.expressions.Expression;
 import parser.expressions.IntegerLiteral;
+import parser.expressions.PairLiteral;
 import parser.expressions.StringLiteral;
 import parser.statements.*;
 
@@ -25,8 +26,6 @@ public class Parser {
     }
 
     public Program parse() {
-        System.out.println("Start parsing");
-
         List<Procedure> procedures = new ArrayList<>();
 
         // parse procedure definitions
@@ -188,7 +187,13 @@ public class Parser {
         return switch (token.type()) {
             case INT -> new IntegerLiteral(token);
             case STRING -> new StringLiteral(token);
-            case PAIR_LEFT -> throw new RuntimeException("Not yet implemented"); // TODO: implement pairs
+            case PAIR_LEFT -> {
+                Expression left = parseExpression();
+                checkCurrentTokenTypeAndInc(TokenType.SEPARATOR);
+                Expression right = parseExpression();
+                checkCurrentTokenTypeAndInc(TokenType.PAIR_RIGHT);
+                yield new PairLiteral(left, right);
+            }
             case IDENTIFIER -> new Identifier(token);
             default -> throw new ParsingException("Expected INT, STRING, [, ] or an IDENTIFIER", token);
         };
