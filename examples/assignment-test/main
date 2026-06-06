@@ -1,0 +1,19 @@
+proc1 proc2
+
+{
+  num1 num2 a b c |
+    num1 = 1
+    num2 = 2
+    
+    a = "hello world"
+    b = "hello"
+    c = ""
+
+    proc1(num1 num2 | )
+    proc1(num1 num2 | )
+    proc2(a b | c)
+
+    print(a | )
+    print(b | )
+    print(c | )
+}

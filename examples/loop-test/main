@@ -1,0 +1,9 @@
+countToN(n | result) {
+  | 
+  lp@{
+
+    lp^
+  }
+}
+
+{ | countToN(100|) }

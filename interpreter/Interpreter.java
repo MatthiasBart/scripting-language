@@ -1,7 +1,14 @@
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import lexer.Lexer;
+import lexer.tokens.Token;
 
 public class Interpreter {
     private static SourceReader sourceReader;
+
+    private List<Token> tokens = new ArrayList<>();
 
     public static void main(String[] args) {
         if (args.length != 1) {
@@ -11,10 +18,15 @@ public class Interpreter {
 
         sourceReader = new SourceReader(new File(folderPath));
 
-        System.out.println("main: \n" + sourceReader.getMain() + "\n");
-
         for (String include : sourceReader.getIncludes().keySet()) {
-            System.out.println(include + ": \n" + sourceReader.getIncludes().get(include) + "\n");
+            String content = sourceReader.getIncludes().get(include);
+
+            System.out.println("Running lexer on included file: " + include);
+            tokens.addAll(Lexer.tokenize(content));
         }
+
+        System.out.println("main: \n" + sourceReader.getMain() + "\n");
+        System.out.println("Running lexer on main");
+        tokens.addAll(Lexer.tokenize(sourceReader.getMain()));
     }
 }

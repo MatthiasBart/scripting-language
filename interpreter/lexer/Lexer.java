@@ -1,9 +1,9 @@
 package lexer;
 
-import lexer.tokens.*;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import lexer.tokens.*;
 
 public class Lexer {
    static public List<Token> tokenize(String input) {

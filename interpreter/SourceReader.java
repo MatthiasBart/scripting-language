@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class SourceReader {
-    File folder;
+    private File folder;
 
     public SourceReader(File folder) {
         if (!folder.isDirectory()) {
@@ -14,8 +14,8 @@ public class SourceReader {
         readSource();
     }
 
-    File[] includes;
-    File[] main;
+    private File[] includes;
+    private File[] main;
 
     String mainContent;
     Map<String, String> includesContent;
