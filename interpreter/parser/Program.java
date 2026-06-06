@@ -1,5 +1,8 @@
 package parser;
 
+import lexer.tokens.Token;
+import parser.statements.Statement;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +22,7 @@ public class Program implements Node {
     }
 
     @Override
-    public String TokenLiteral() {
-        return "";
+    public Token token() {
+        return null;
     }
 }

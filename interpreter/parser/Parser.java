@@ -2,36 +2,50 @@ package parser;
 
 import lexer.tokens.Token;
 import lexer.tokens.TokenType;
+import parser.statements.AssignmentStatement;
+import parser.statements.Statement;
 
 import java.util.List;
 
 
 public class Parser {
+    Token peekToken;
+    Token currToken;
+    List<Token> tokens;
+    int position = 0;
 
     public Parser() {
 
     }
 
-    public Program parse(List<Token> tokens) {
-        if(tokens.isEmpty()) return new Program();
-        System.out.println("parsing");
-        int position = 0;
-        Token peekToken;
+    private void nextToken() {
+        currToken = peekToken;
+
+        if (position < tokens.size()) {
+            peekToken = tokens.get(position);
+            position++;
+        } else {
+            peekToken = null;
+        }
+    }
+
+    public Parser(List<Token> tokens) {
+        this.tokens = tokens;
+    }
+
+    public Program parse() {
+        System.out.println("Start parsing");
+
+        if (tokens.isEmpty()) return new Program();
 
         Program program = new Program();
-
-        for (Token currToken : tokens) {
-            peekToken = position + 1 < tokens.size()
-                    ? tokens.get(position+1)
-                    : null;
-
+        while(position < tokens.size()) {
             Statement stmt = parseStatement(currToken, peekToken);
-
             if (stmt != null) {
                 program.getStatements().add(stmt);
             }
 
-            position += 1;
+            nextToken();
         }
 
         return program;
@@ -44,9 +58,35 @@ public class Parser {
         }
         return null;
     }
+
     private Statement parseAssignmentStatement() {
-        return null;
+        Identifier name = new Identifier(currToken);
+
+        // move from IDENTIFIER to ASSIGNMENT
+        nextToken();
+
+        // move from ASSIGNMENT to expression start
+        nextToken();
+
+        Expression value = parseExpression(currToken);
+
+        return new AssignmentStatement(name, value);
+
     }
+    private Expression parseExpression(Token token) {
+        return switch (token.type()) {
+            case INT -> new IntegerLiteral(token);
+
+            case STRING -> new StringLiteral(token);
+
+            case PAIR_LEFT -> throw new RuntimeException("Not yet implemented");
+
+            case IDENTIFIER -> new Identifier(token);
+
+            default -> throw new ParsingException("Expected INT, STRING, [, ] or an IDENTIFIER", token);
+        };
+    }
+}
         /*
 
         2.4 - Parser’s first steps: parsing let statements
@@ -683,7 +723,7 @@ positions. In contrast to this, the let token can only appear
          */
 
 
-    }
+
         /*
 2.4 - Parser’s first steps: parsing let statements
 In Monkey, variable bindings are statements of the following form:

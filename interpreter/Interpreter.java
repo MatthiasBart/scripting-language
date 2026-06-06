@@ -4,6 +4,7 @@ import java.util.List;
 
 import lexer.Lexer;
 import lexer.tokens.Token;
+import lexer.tokens.TokenType;
 import parser.Parser;
 
 public class Interpreter {
@@ -23,14 +24,18 @@ public class Interpreter {
             String content = sourceReader.getIncludes().get(include);
 
             System.out.println("Running lexer on included file: " + include);
-            tokens.addAll(new Lexer(content).tokenize());
+            tokens.addAll(new Lexer(content, include).tokenize());
         }
 
         System.out.println("main: \n" + sourceReader.getMain() + "\n");
         System.out.println("Running lexer on main");
-        tokens.addAll(new Lexer(sourceReader.getMain()).tokenize());
-
+        tokens.addAll(new Lexer(sourceReader.getMain(), "main").tokenize());
         Parser parser = new Parser();
+        List<Token> tokens = List.of(
+                new Token(TokenType.IDENTIFIER, "x", null),
+                new Token(TokenType.ASSIGNMENT, "=", null),
+                new Token(TokenType.INT, "5", null)
+        );
         parser.parse(tokens);
     }
 }

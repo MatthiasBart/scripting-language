@@ -1,5 +1,7 @@
 package parser;
 
+import lexer.tokens.Token;
+
 public interface Node {
-    String TokenLiteral();
+    Token token();
 }
