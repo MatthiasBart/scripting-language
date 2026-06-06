@@ -42,10 +42,14 @@ public class Parser {
 
     private Procedure parseProcedure() {
         Identifier identifier = parseIdentifier();
-        checkNextTokenType(TokenType.PROC_PARAM_LEFT);
+        checkCurrentTokenTypeAndInc(TokenType.PROC_PARAM_LEFT);
 
         List<Identifier> valueParameters = parseParameters();
+        checkCurrentTokenTypeAndInc(TokenType.SEPARATOR);
+
         List<Identifier> refParameters = parseParameters();
+        checkCurrentTokenTypeAndInc(TokenType.PROC_PARAM_RIGHT);
+
         Body body = parseBody();
 
         return new Procedure(identifier, valueParameters, refParameters, body);
@@ -54,10 +58,9 @@ public class Parser {
     private List<Identifier> parseParameters() {
         List<Identifier> parameters = new ArrayList<>();
 
-        Token currentToken = currentTokenAndInc();
-        while (currentToken.type() != TokenType.SEPARATOR && currentToken.type() != TokenType.PROC_PARAM_RIGHT) {
-            Identifier identifier = new Identifier(currentToken);
-            currentToken = currentTokenAndInc();
+        while (currentToken().type() == TokenType.IDENTIFIER) {
+            Token token = currentTokenAndInc();
+            Identifier identifier = new Identifier(token);
             parameters.add(identifier);
         }
 
@@ -65,33 +68,33 @@ public class Parser {
     }
 
     private Body parseBody() {
-        checkNextTokenType(TokenType.BODY_LEFT);
+        checkCurrentTokenTypeAndInc(TokenType.BODY_LEFT);
 
         // local variables for body reuses parameters because same seperator
         List<Identifier> variables = parseParameters();
+        checkCurrentTokenTypeAndInc(TokenType.SEPARATOR);
 
         List<Statement> statements = new ArrayList<>();
-        Token nextToken = nextToken();
-        while (nextToken.type() != TokenType.BODY_RIGHT) {
+
+        while (currentToken().type() != TokenType.BODY_RIGHT) {
             statements.add(parseStatement());
-            nextToken = nextToken();
         }
 
-        checkNextTokenType(TokenType.BODY_LEFT);
+        checkCurrentTokenTypeAndInc(TokenType.BODY_RIGHT);
 
         return new Body(variables, statements);
     }
 
     private Token nextToken() {
-        if (position == tokens.size() - 1) {
+        if (position + 1 >= tokens.size()) {
             throw new ParsingException("Tokens out of bounds", currentToken());
         }
         return tokens.get(position + 1);
     }
 
     private Token currentToken() {
-        if (position == tokens.size() - 1) {
-            throw new ParsingException("Tokens out of bounds", currentToken());
+        if (position >= tokens.size()) {
+            throw new ParsingException("Tokens out of bounds", tokens.get(position - 1));
         }
         return tokens.get(position);
     }
@@ -106,7 +109,7 @@ public class Parser {
 
     private Statement parseStatement() {
         // second token from statement beginning defines statement type
-        Token token = tokens.get(position + 2);
+        Token token = tokens.get(position + 1);
         return switch (token.type()) {
             case TokenType.COND_START -> parseConditionalStatement();
             case TokenType.LOOP_START -> parseLoopStartStatement();
@@ -119,51 +122,51 @@ public class Parser {
 
     private LoopStart parseLoopStartStatement() {
         Identifier identifier = parseIdentifier();
-        checkNextTokenType(TokenType.LOOP_START);
+        checkCurrentTokenTypeAndInc(TokenType.LOOP_START);
         Body body = parseBody();
         return new LoopStart(identifier, body);
     }
 
     private LoopBreak parseLoopBreakStatement() {
         Identifier identifier = parseIdentifier();
-        checkNextTokenType(TokenType.LOOP_BREAK);
+        checkCurrentTokenTypeAndInc(TokenType.LOOP_BREAK);
         return new LoopBreak(identifier);
     }
 
     private ProcedureCall parseProcedureCallStatement() {
         Identifier identifier = parseIdentifier();
-        checkNextTokenType(TokenType.PROC_PARAM_LEFT);
+        checkCurrentTokenTypeAndInc(TokenType.PROC_PARAM_LEFT);
 
         List<Expression> arguments = new ArrayList<>();
-        Token nextToken = nextToken();
-        while (nextToken.type() != TokenType.SEPARATOR) {
+
+        while(currentToken().type() != TokenType.SEPARATOR) {
             Expression expression = parseExpression();
             arguments.add(expression);
-            nextToken = nextToken();
         }
 
-        checkNextTokenType(TokenType.SEPARATOR);
+        checkCurrentTokenTypeAndInc(TokenType.SEPARATOR);
 
         List<Identifier> refVariables = parseParameters();
+        checkCurrentTokenTypeAndInc(TokenType.PROC_PARAM_RIGHT);
 
         return new ProcedureCall(identifier, arguments, refVariables);
     }
 
     private Conditional parseConditionalStatement() {
         Identifier condition = parseIdentifier();
-        checkNextTokenType(TokenType.COND_START);
+        checkCurrentTokenTypeAndInc(TokenType.COND_START);
         Body thenBody = parseBody();
         Body elseBody = null;
 
-        if (nextToken().type() == TokenType.COND_SEPARATOR) {
-            checkNextTokenType(TokenType.COND_SEPARATOR);
+        if (currentToken().type() == TokenType.COND_SEPARATOR) {
+            checkCurrentTokenTypeAndInc(TokenType.COND_SEPARATOR);
             elseBody = parseBody();
         }
 
         return new Conditional(condition, thenBody, elseBody);
     }
 
-    private void checkNextTokenType(TokenType type) {
+    private void checkCurrentTokenTypeAndInc(TokenType type) {
         Token currentToken = currentTokenAndInc();
         if (currentToken.type() != type) {
             throw new ParsingException("Expected symbol " + type.getSymbol(), currentToken);
@@ -173,7 +176,7 @@ public class Parser {
     private Statement parseAssignmentStatement() {
         Identifier identifier = parseIdentifier();
 
-        checkNextTokenType(TokenType.ASSIGNMENT);
+        checkCurrentTokenTypeAndInc(TokenType.ASSIGNMENT);
 
         Expression value = parseExpression();
         return new Assignment(identifier, value);

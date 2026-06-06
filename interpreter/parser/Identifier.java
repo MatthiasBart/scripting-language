@@ -1,22 +1,17 @@
 package parser;
 
 import lexer.tokens.Token;
+import lexer.tokens.TokenType;
 import parser.expressions.Expression;
 
 public class Identifier implements Expression {
-    private final Token token;
+    private final String identifier;
 
     public Identifier(Token token) {
-        this.token = token;
-    }
+        if (token.type() != TokenType.IDENTIFIER) {
+            throw new ParsingException("Expected identifier", token);
+        }
 
-    @Override
-    public Token token() {
-        return token;
-    }
-
-    @Override
-    public void expressionNode() {
-
+        this.identifier = token.value();
     }
 }

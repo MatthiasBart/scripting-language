@@ -4,8 +4,8 @@ import java.util.List;
 
 import lexer.Lexer;
 import lexer.tokens.Token;
-import lexer.tokens.TokenType;
 import parser.Parser;
+import parser.Program;
 
 public class Interpreter {
     private static SourceReader sourceReader;
@@ -33,6 +33,8 @@ public class Interpreter {
 
         Parser parser = new Parser(tokens);
 
-        parser.parse();
+        Program program = parser.parse();
+
+        System.out.println(program);
     }
 }

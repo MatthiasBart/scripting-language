@@ -38,6 +38,8 @@ public class Lexer {
                p++;
                tokens.add(stringLiteral());
                p++;
+           } else if (c == '-') {
+               tokens.add(integer());
            } else if (isDigit()) {
                tokens.add(integer());
            } else if (isLetter()) {
@@ -78,7 +80,8 @@ public class Lexer {
     }
 
     private Token integer() {
-        String value = "";
+        String value = String.valueOf(input.charAt(p));
+        p++;
         while (p < input.length() && Character.isDigit(input.charAt(p))) {
             value += input.charAt(p);
             p++;
