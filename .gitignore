@@ -1,7 +1,9 @@
 *.idea 
 # Compiled class file
 *.class
-
+.DS_Store
+writing an INTERPRETER in go.pdf
+scripting-language.iml
 # Log file
 *.log
 

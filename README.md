@@ -14,7 +14,7 @@ Here we define which parts of the system are needed and what boundaries there ar
 
 The preprocessor should combine a main file and multiple includes to one long string, with the includes on the top in the defined order and the main file on the bottom. When there are syntactic errors in the files the preprocessor does not care the only job is to combine the files into one big source. 
 
-#### Lexer 
+#### lexer 
 
 A lexer creates a list of tokens from the source. It evaluates the characters and classifies the token eg. a = 1 + b gets [var(a), eq, int(1), add, var(b)].
 
