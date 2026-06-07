@@ -5,11 +5,15 @@ import java.util.List;
 
 import lexer.tokens.Token;
 import lexer.tokens.TokenType;
+import lexer.tokens.Position;
 
 public class Lexer {
     int p = 0; // position
     private String input;
     String fileName;
+
+    int line = 1;
+    int charsInLinesAbove = 0;
 
     public Lexer(String input, String fileName) {
         this.input = input;
@@ -23,19 +27,22 @@ public class Lexer {
            char c = input.charAt(p);
 
            if (Character.isWhitespace(c)) {
+               if (c == '\n') {
+                   line++;
+                   charsInLinesAbove = p + 1;
+               }
                p++;
                continue;
            }
 
            TokenType type = TokenType.fromChar(c);
            if (type != null) {
-               tokens.add(new Token(type, null, null));
+               tokens.add(new Token(type, null, position()));
                p++;
                continue;
            }
 
            if(c == '"') {
-               p++;
                tokens.add(stringLiteral());
                p++;
            } else if (c == '-') {
@@ -45,7 +52,7 @@ public class Lexer {
            } else if (isLetter()) {
                tokens.add(identifier());
            } else {
-               throw new LexerException("Unexpected character", 0, 0);
+               throw new LexerException("Unexpected character", position());
            }
        }
 
@@ -61,42 +68,50 @@ public class Lexer {
    }
 
     private Token stringLiteral() {
+        Position pos = position();
+        p++; // skip opening "
         String value = "";
         while (p < input.length() && input.charAt(p) != '"') {
             value += input.charAt(p);
             p++;
         }
-        if (p >= input.length()) throw new LexerException("Unterminated string", 0, 0);
-        return new Token(TokenType.STRING, value, null);
+        if (p >= input.length()) throw new LexerException("Unterminated string", position());
+        return new Token(TokenType.STRING, value, pos);
     }
 
     private Token identifier() {
+        Position pos = position();
         String value = "";
         while (p < input.length() && (Character.isLetterOrDigit(input.charAt(p)) || input.charAt(p) == '_')) {
             value += input.charAt(p);
             p++;
         }
-        return new Token(TokenType.IDENTIFIER, value, null);
+        return new Token(TokenType.IDENTIFIER, value, pos);
     }
 
     private Token integer() {
+        Position pos = position();
         String value = String.valueOf(input.charAt(p));
         p++;
         while (p < input.length() && Character.isDigit(input.charAt(p))) {
             value += input.charAt(p);
             p++;
         }
-        return new Token(TokenType.INT, value, null);
+        return new Token(TokenType.INT, value, pos);
+    }
+
+    private Position position() {
+        return new Position(fileName, line, p - charsInLinesAbove + 1);
     }
 
    public static class LexerException extends RuntimeException {
-       private final int line;
-       private final int column;
-
-       public LexerException(String message, int line, int column) {
-           super(message + " at " + line + ":" + column);
-           this.line = line;
-           this.column = column;
+       public LexerException(String message, Position position) {
+           super(
+                   message
+                   + " in " + position.fileName()
+                   +  " at " + position.line()
+                   + ":" + position.column()
+           );
        }
    }
 }

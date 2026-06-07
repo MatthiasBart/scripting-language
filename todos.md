@@ -1,0 +1,2 @@
+- Punkt vor Strich Rechnung 
+- represnet strings as list of integers
