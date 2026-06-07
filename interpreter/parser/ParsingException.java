@@ -5,6 +5,6 @@ import lexer.tokens.Token;
 
 public class ParsingException extends RuntimeException {
     public ParsingException(String message, Token token) {
-        super(message);
+        super(message + " in " + token.position().fileName() + " at " + token.position().line() + ":" + token.position().column());
     }
 }

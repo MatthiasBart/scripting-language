@@ -1,7 +1,5 @@
-sqrt
-
-main {
-    t,v,b
-    |
-    t 3 2
+{
+    t v b
+    | 
+    t = 3
 }

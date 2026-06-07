@@ -1,4 +1,4 @@
-folder ?= .source
+folder ?= source
 
 default: build test
 
