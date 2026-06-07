@@ -1,2 +1,3 @@
 - Punkt vor Strich Rechnung 
 - represnet strings as list of integers
+- write comments in object oriented programs otherwise insufficient, he said that in the lecture
