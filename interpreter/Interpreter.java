@@ -2,6 +2,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import evaluator.Evaluator;
 import lexer.Lexer;
 import lexer.tokens.Token;
 import parser.Parser;
@@ -34,6 +35,8 @@ public class Interpreter {
         Parser parser = new Parser(tokens);
 
         Program program = parser.parse();
+
+        new Evaluator(program).evaluate();
 
         System.out.println(program);
     }
