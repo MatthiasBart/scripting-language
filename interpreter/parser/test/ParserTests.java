@@ -10,10 +10,19 @@ import test.InterpreterTests;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class ParserTest {
+public class ParserTests {
 
     public static void exec() {
         System.out.println("\nParser:");
+
+        test("out statement", "{ | 5 -> }", prog -> {
+            List<Statement> stmts = prog.body().statements();
+            assert stmts.size() == 1 : "expected 1 statement";
+            assert stmts.get(0) instanceof OutStatement : "expected OutStatement";
+            OutStatement out = (OutStatement) stmts.get(0);
+            assert out.expression() instanceof IntegerLiteral : "expression should be IntegerLiteral";
+            assert ((IntegerLiteral) out.expression()).value() == 5 : "value should be 5";
+        });
 
         test("empty body", "{ | }", prog -> {
             assert prog.procedures().isEmpty() : "expected no procedures";

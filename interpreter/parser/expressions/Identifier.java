@@ -1,8 +1,8 @@
-package parser;
+package parser.expressions;
 
 import lexer.tokens.Token;
 import lexer.tokens.TokenType;
-import parser.expressions.Expression;
+import parser.ParsingException;
 
 public record Identifier(String name) implements Expression {
     public Identifier(Token token) {

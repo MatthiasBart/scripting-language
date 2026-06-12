@@ -1,7 +1,7 @@
 package parser.statements;
 
 
-import parser.Identifier;
+import parser.expressions.Identifier;
 import parser.expressions.Expression;
 
 import java.util.List;

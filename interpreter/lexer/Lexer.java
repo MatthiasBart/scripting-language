@@ -46,7 +46,11 @@ public class Lexer {
                tokens.add(stringLiteral());
                p++;
            } else if (c == '-') {
-               tokens.add(integer());
+               if (input.charAt(p + 1) == '>') {
+                   tokens.add(out());
+               } else {
+                   tokens.add(integer());
+               }
            } else if (isDigit()) {
                tokens.add(integer());
            } else if (isLetter()) {
@@ -57,6 +61,12 @@ public class Lexer {
        }
 
         return tokens;
+   }
+
+   private Token out() {
+        p++;
+        p++;
+        return new Token(TokenType.OUT, null, position());
    }
 
    private boolean isDigit() {

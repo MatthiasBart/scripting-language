@@ -7,11 +7,12 @@ import lexer.tokens.TokenType;
 
 import java.util.List;
 import test.InterpreterTests;
-public class LexerTest {
+public class LexerTests {
     public static void exec() {
         System.out.println("Lexer:");
         test("[abc]", TokenType.PAIR_LEFT, TokenType.IDENTIFIER, TokenType.PAIR_RIGHT);
         test("{foo      = -42}", TokenType.BODY_LEFT, TokenType.IDENTIFIER, TokenType.ASSIGNMENT, TokenType.INT, TokenType.BODY_RIGHT);
+        test("5 ->", TokenType.INT, TokenType.OUT);
         test("\"hello\"", TokenType.STRING);
         test("@(bar)", TokenType.LOOP_START, TokenType.PROC_PARAM_LEFT, TokenType.IDENTIFIER, TokenType.PROC_PARAM_RIGHT);
         test("? x : y", TokenType.COND_START, TokenType.IDENTIFIER, TokenType.COND_SEPARATOR, TokenType.IDENTIFIER);

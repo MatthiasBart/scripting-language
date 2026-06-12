@@ -13,8 +13,15 @@ public enum TokenType {
     COND_START("?"),
     COND_SEPARATOR(":"),
     ASSIGNMENT("="),
+    EQ("=="), //TODO: would be two assignment right now, add also negation
+    LT("<"),
+    GT(">"),
+    PLUS("+"),
+    MULT("*"),
+    DIV("/"),
     IDENTIFIER,
     STRING,
+    OUT,
     INT;
 
     private final String symbol;

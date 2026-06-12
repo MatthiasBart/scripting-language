@@ -1,6 +1,6 @@
 package parser.statements;
 
-import parser.Identifier;
+import parser.expressions.Identifier;
 
 public record LoopBreak(Identifier identifier) implements Statement {
 }

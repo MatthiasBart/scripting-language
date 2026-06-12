@@ -2,10 +2,7 @@ package parser;
 
 import lexer.tokens.Token;
 import lexer.tokens.TokenType;
-import parser.expressions.Expression;
-import parser.expressions.IntegerLiteral;
-import parser.expressions.PairLiteral;
-import parser.expressions.StringLiteral;
+import parser.expressions.*;
 import parser.statements.*;
 
 import java.util.ArrayList;
@@ -124,14 +121,34 @@ public class Parser {
 
     // ==== Expressions ====
 
+    private Expression parseInfix(Expression left) {
+        Token operatorToken = currentTokenAndInc();
+        Expression right = parseExpression();
+
+        return new Infix(left, right, operatorToken);
+    }
+
     private Expression parseExpression() {
         Token token = currentTokenAndInc();
-        return switch (token.type()) {
+        Expression left = switch (token.type()) {
             case INT -> new IntegerLiteral(token);
             case STRING -> new StringLiteral(token);
             case PAIR_LEFT -> parsePairLiteral();
             case IDENTIFIER -> new Identifier(token);
             default -> throw new ParsingException("Expected INT, STRING, [, ] or an IDENTIFIER", token);
+        };
+
+        if (isOperator(currentToken())) {
+            left = parseInfix(left);
+        }
+
+        return left;
+    }
+
+    private boolean isOperator(Token token) {
+        return switch (token.type()) {
+            case EQ, LT, GT, PLUS, DIV, MULT -> true;
+            default -> false;
         };
     }
 
@@ -154,8 +171,16 @@ public class Parser {
             case TokenType.LOOP_BREAK -> parseLoopBreakStatement();
             case TokenType.PROC_PARAM_LEFT -> parseProcedureCallStatement();
             case TokenType.ASSIGNMENT -> parseAssignmentStatement();
+            case TokenType.OUT -> parseOutStatement();
             default -> throw new ParsingException("Unexpected token at for statement", token);
         };
+    }
+
+    private OutStatement parseOutStatement() {
+        Expression expression = parseExpression();
+        OutStatement outStatement = new OutStatement(currentToken(), expression);
+        checkCurrentTokenTypeAndInc(TokenType.OUT);
+        return outStatement;
     }
 
     private LoopStart parseLoopStartStatement() {

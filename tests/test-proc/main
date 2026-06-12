@@ -1,0 +1,14 @@
+add(a b | c) { |
+    c = a + b
+}
+
+print(a|) { |
+    a->
+}
+
+{ a c|
+    a = 1
+    add(a 2+ 6 | c)
+    c ->
+    print(5*4|)
+}
