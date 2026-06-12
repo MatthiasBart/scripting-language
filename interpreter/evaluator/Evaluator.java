@@ -88,7 +88,6 @@ public class Evaluator {
     }
 
     private void evaluate(ProcedureCall procedureCall) {
-        currentEnv = new Environment(currentEnv);
         Procedure procedure = procedures.get(procedureCall.identifier().name());
         if (procedure == null) {
             throw new EvaluationException("Call to procedure " + procedureCall.identifier().name() + " not found");
@@ -98,13 +97,32 @@ public class Evaluator {
             throw new EvaluationException("Expected " + procedure.valueParameters().size() + " arguments, got " + procedureCall.arguments().size());
         }
 
+        if (procedureCall.refVariables().size() != procedure.refParameters().size()) {
+            throw new EvaluationException("Expected " + procedure.refParameters().size() + " ref parameters, got " + procedureCall.refVariables().size());
+        }
+
+        Environment callerEnv = currentEnv;
+        currentEnv = new Environment(callerEnv);
+
         for (int i = 0; i < procedure.valueParameters().size(); i++) {
+            System.out.println(procedure.valueParameters().get(i).name());
+            System.out.println(procedureCall.arguments().get(i));
             currentEnv.declare(procedure.valueParameters().get(i), evaluate(procedureCall.arguments().get(i)));
+        }
+
+        for (int i = 0; i < procedure.refParameters().size(); i++) {
+            // copy ref vars from caller to callee
+            currentEnv.declare(procedure.refParameters().get(i), callerEnv.get(procedureCall.refVariables().get(i)));
         }
 
         evaluate(procedure.body());
 
-        currentEnv = currentEnv.parent;
+        for (int i = 0; i < procedure.refParameters().size(); i++) {
+            // copy ref vars from callee to caller
+            callerEnv.set(procedureCall.refVariables().get(i), currentEnv.get(procedure.refParameters().get(i)));
+        }
+
+        currentEnv = callerEnv;
     }
 
     private void evaluate(OutStatement outStatement) {

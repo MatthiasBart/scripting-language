@@ -13,3 +13,4 @@ run:
 
 b: build
 t: test
+r: run

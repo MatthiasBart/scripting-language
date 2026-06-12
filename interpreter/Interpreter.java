@@ -35,9 +35,9 @@ public class Interpreter {
         Parser parser = new Parser(tokens);
 
         Program program = parser.parse();
-
-        new Evaluator(program).evaluate();
-
         System.out.println(program);
+
+        System.out.println("Running evaluator. Result: ");
+        new Evaluator(program).evaluate();
     }
 }

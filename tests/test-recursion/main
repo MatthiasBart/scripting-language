@@ -1,0 +1,19 @@
+fib(a|r) { b c d |
+    d = a > 2
+    d ? {|
+        fib(a + -1|b)
+        fib(a + -2|c)
+
+        r = b + c 
+    } : {|
+        r = 1
+    }
+}
+
+{a |
+    fib(4|a) 
+    a->
+
+    fib(11 | a)
+    a->
+}

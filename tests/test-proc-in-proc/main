@@ -1,0 +1,21 @@
+sub5(a | b) {|
+    b = a + -5
+}
+
+add(a b | c) {|
+    c = a + b
+}
+
+algo(a | b) {s |
+    sub5(a | s)
+    s->
+    add(3+2 s | s)
+    s->
+    b = s
+}
+
+{ s|
+    algo(10 | s)
+
+    s ->
+}

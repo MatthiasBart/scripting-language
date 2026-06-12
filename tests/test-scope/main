@@ -1,0 +1,14 @@
+proc(a b | c) { |
+    a->
+    b->
+    c->
+    c = "hallo"
+    c ->
+}
+
+{ a |
+    a = 3
+    a ->
+    proc(2+2 a | a)
+    a->
+}

@@ -27,4 +27,9 @@ public class StringRepresentation implements ValueRepresentation<String> {
     public boolean isTruthy() {
         return !value.isEmpty();
     }
+
+    @Override
+    public String toString() {
+        return value;
+    }
 }
