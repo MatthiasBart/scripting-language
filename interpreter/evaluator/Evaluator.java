@@ -10,6 +10,7 @@ import parser.expressions.*;
 import parser.statements.*;
 import parser.Body;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -101,14 +102,16 @@ public class Evaluator {
             throw new EvaluationException("Expected " + procedure.refParameters().size() + " ref parameters, got " + procedureCall.refVariables().size());
         }
 
-        Environment callerEnv = currentEnv;
-        currentEnv = new Environment(callerEnv);
 
+        Environment callerEnv = currentEnv;
+
+        //evaluate value arguments with caller environment, so new variables dont interfere with evaluation of the old scope
+        Environment nextEnv = new Environment(callerEnv);
         for (int i = 0; i < procedure.valueParameters().size(); i++) {
-            System.out.println(procedure.valueParameters().get(i).name());
-            System.out.println(procedureCall.arguments().get(i));
-            currentEnv.declare(procedure.valueParameters().get(i), evaluate(procedureCall.arguments().get(i)));
+            nextEnv.declare(procedure.valueParameters().get(i), evaluate(procedureCall.arguments().get(i)));
         }
+
+        currentEnv = nextEnv;
 
         for (int i = 0; i < procedure.refParameters().size(); i++) {
             // copy ref vars from caller to callee
