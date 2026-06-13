@@ -74,6 +74,7 @@ public class Evaluator {
         if (value.isTruthy()) {
             evaluate(conditional.thenBody());
         } else {
+            if (conditional.elseBody() == null) return;
             evaluate(conditional.elseBody());
         }
     }
