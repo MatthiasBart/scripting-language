@@ -35,35 +35,31 @@ public class Evaluator {
         evaluate(program.body());
     }
 
-    private LoopSignal evaluate(Body body) {
+    private void evaluate(Body body) {
         for (Identifier identifier : body.variables()) {
             currentEnv.declare(identifier, new IntegerRepresentation(0));
         }
 
         for (Statement statement : body.statements()) {
-            LoopSignal signal = evaluate(statement);
-            if (signal == LoopSignal.BREAK) return signal;
+            evaluate(statement);
         }
-
-        return LoopSignal.NULL;
     }
 
     //Statements
-    private LoopSignal evaluate(Statement statement) {
+    private void evaluate(Statement statement) {
         if (statement instanceof Assignment) {
             evaluate((Assignment) statement);
         } else if (statement instanceof Conditional) {
-            return evaluate((Conditional) statement);
+            evaluate((Conditional) statement);
         } else if (statement instanceof LoopBreak) {
-            return evaluate((LoopBreak) statement);
+            evaluate((LoopBreak) statement);
         } else if (statement instanceof LoopStart) {
             evaluate((LoopStart) statement);
         } else if (statement instanceof ProcedureCall) {
-            return evaluate((ProcedureCall) statement);
+            evaluate((ProcedureCall) statement);
         } else if (statement instanceof OutStatement) {
             evaluate((OutStatement) statement);
         }
-        return LoopSignal.NULL;
     }
 
     private void evaluate(Assignment assignment) {
@@ -73,28 +69,32 @@ public class Evaluator {
           );
     }
 
-    private LoopSignal evaluate(Conditional conditional) {
+    private void evaluate(Conditional conditional) {
         ValueRepresentation value = currentEnv.get(conditional.condition());
         if (value.isTruthy()) {
-            return evaluate(conditional.thenBody());
+            evaluate(conditional.thenBody());
         } else {
-            return evaluate(conditional.elseBody());
+            evaluate(conditional.elseBody());
         }
     }
 
-    private LoopSignal evaluate(LoopBreak loopBreak) {
-        return LoopSignal.BREAK;
+    private void evaluate(LoopBreak loopBreak) {
+        throw new BreakSignal(loopBreak.identifier());
     }
 
     private void evaluate(LoopStart loopStart) {
-        LoopSignal signal = evaluate(loopStart.body());
-
-        while (signal == LoopSignal.NULL) {
-            signal = evaluate(loopStart.body());
+        try {
+            while (true) {
+                evaluate(loopStart.body());
+            }
+        } catch (BreakSignal e) {
+            if (!e.loop.equals(loopStart.identifier())) {
+                throw e;
+            }
         }
     }
 
-    private LoopSignal evaluate(ProcedureCall procedureCall) {
+    private void evaluate(ProcedureCall procedureCall) {
         Procedure procedure = procedures.get(procedureCall.identifier().name());
         if (procedure == null) {
             throw new EvaluationException("Call to procedure " + procedureCall.identifier().name() + " not found");
@@ -124,7 +124,11 @@ public class Evaluator {
             currentEnv.declare(procedure.refParameters().get(i), callerEnv.get(procedureCall.refVariables().get(i)));
         }
 
-        LoopSignal signal = evaluate(procedure.body());
+        try {
+            evaluate(procedure.body());
+        } catch (BreakSignal e) {
+            throw new EvaluationException("Loop break " + e.loop.name() + " not in loop");
+        }
 
         for (int i = 0; i < procedure.refParameters().size(); i++) {
             // copy ref vars from callee to caller
@@ -132,7 +136,6 @@ public class Evaluator {
         }
 
         currentEnv = callerEnv;
-        return signal;
     }
 
     private void evaluate(OutStatement outStatement) {
