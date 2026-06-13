@@ -1,0 +1,1 @@
+statemenst usually do not return values by design, but a loop break statement returns something, this breaks a little bit the design. Dont know what the best method to include this is.

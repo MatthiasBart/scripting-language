@@ -10,9 +10,7 @@ import parser.expressions.*;
 import parser.statements.*;
 import parser.Body;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class Evaluator {
 
@@ -37,31 +35,35 @@ public class Evaluator {
         evaluate(program.body());
     }
 
-    private void evaluate(Body body) {
+    private LoopSignal evaluate(Body body) {
         for (Identifier identifier : body.variables()) {
             currentEnv.declare(identifier, new IntegerRepresentation(0));
         }
 
         for (Statement statement : body.statements()) {
-            evaluate(statement);
+            LoopSignal signal = evaluate(statement);
+            if (signal == LoopSignal.BREAK) return signal;
         }
+
+        return LoopSignal.NULL;
     }
 
     //Statements
-    private void evaluate(Statement statement) {
+    private LoopSignal evaluate(Statement statement) {
         if (statement instanceof Assignment) {
             evaluate((Assignment) statement);
         } else if (statement instanceof Conditional) {
-            evaluate((Conditional) statement);
+            return evaluate((Conditional) statement);
         } else if (statement instanceof LoopBreak) {
-            evaluate((LoopBreak) statement);
+            return evaluate((LoopBreak) statement);
         } else if (statement instanceof LoopStart) {
             evaluate((LoopStart) statement);
         } else if (statement instanceof ProcedureCall) {
-            evaluate((ProcedureCall) statement);
+            return evaluate((ProcedureCall) statement);
         } else if (statement instanceof OutStatement) {
             evaluate((OutStatement) statement);
         }
+        return LoopSignal.NULL;
     }
 
     private void evaluate(Assignment assignment) {
@@ -71,24 +73,28 @@ public class Evaluator {
           );
     }
 
-    private void evaluate(Conditional conditional) {
+    private LoopSignal evaluate(Conditional conditional) {
         ValueRepresentation value = currentEnv.get(conditional.condition());
         if (value.isTruthy()) {
-            evaluate(conditional.thenBody());
+            return evaluate(conditional.thenBody());
         } else {
-            evaluate(conditional.elseBody());
+            return evaluate(conditional.elseBody());
         }
     }
 
-    private void evaluate(LoopBreak loopBreak) {
-
+    private LoopSignal evaluate(LoopBreak loopBreak) {
+        return LoopSignal.BREAK;
     }
 
     private void evaluate(LoopStart loopStart) {
+        LoopSignal signal = evaluate(loopStart.body());
 
+        while (signal == LoopSignal.NULL) {
+            signal = evaluate(loopStart.body());
+        }
     }
 
-    private void evaluate(ProcedureCall procedureCall) {
+    private LoopSignal evaluate(ProcedureCall procedureCall) {
         Procedure procedure = procedures.get(procedureCall.identifier().name());
         if (procedure == null) {
             throw new EvaluationException("Call to procedure " + procedureCall.identifier().name() + " not found");
@@ -118,7 +124,7 @@ public class Evaluator {
             currentEnv.declare(procedure.refParameters().get(i), callerEnv.get(procedureCall.refVariables().get(i)));
         }
 
-        evaluate(procedure.body());
+        LoopSignal signal = evaluate(procedure.body());
 
         for (int i = 0; i < procedure.refParameters().size(); i++) {
             // copy ref vars from callee to caller
@@ -126,6 +132,7 @@ public class Evaluator {
         }
 
         currentEnv = callerEnv;
+        return signal;
     }
 
     private void evaluate(OutStatement outStatement) {
