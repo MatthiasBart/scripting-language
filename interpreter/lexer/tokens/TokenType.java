@@ -13,7 +13,7 @@ public enum TokenType {
     COND_START("?"),
     COND_SEPARATOR(":"),
     ASSIGNMENT("="),
-    EQ("=="), //TODO: would be two assignment right now, add also negation
+    EQ("~"),
     LT("<"),
     GT(">"),
     PLUS("+"),
