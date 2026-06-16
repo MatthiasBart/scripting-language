@@ -177,9 +177,10 @@ public class Parser {
     }
 
     private OutStatement parseOutStatement() {
-        Expression expression = parseExpression();
-        OutStatement outStatement = new OutStatement(currentToken(), expression);
+        checkCurrentTokenTypeAndInc(TokenType.OUT_SEPARATOR);
         checkCurrentTokenTypeAndInc(TokenType.OUT);
+        Expression expression = parseExpression();
+        OutStatement outStatement = new OutStatement(expression);
         return outStatement;
     }
 

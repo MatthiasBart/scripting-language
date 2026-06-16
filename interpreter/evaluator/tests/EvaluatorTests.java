@@ -7,7 +7,6 @@ import parser.Parser;
 import test.InterpreterTests;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,7 +15,7 @@ import java.util.List;
 public class EvaluatorTests {
     public static void exec() {
         System.out.println("Evaluator:");
-        test("", "{ | 5 -> }", "5");
+        test("", "{ | -> 5 }", "5");
         testFromFiles();
     }
 

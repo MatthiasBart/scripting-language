@@ -21,6 +21,7 @@ public enum TokenType {
     DIV("/"),
     IDENTIFIER,
     STRING,
+    OUT_SEPARATOR,
     OUT,
     INT;
 

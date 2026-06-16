@@ -3,12 +3,12 @@ add(a b | c) { |
 }
 
 print(a|) { |
-    a->
+    -> a
 }
 
 { a c|
     a = 1
     add(a 2+ 6 | c)
-    c ->
+    -> c
     print(5*4|)
 }

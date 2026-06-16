@@ -12,8 +12,8 @@ fib(a|r) { b c d |
 
 {a |
     fib(4|a) 
-    a->
+    -> a
 
     fib(11 | a)
-    a->
+    -> a
 }

@@ -47,6 +47,7 @@ public class Lexer {
                p++;
            } else if (c == '-') {
                if (input.charAt(p + 1) == '>') {
+                   tokens.add(outSeperator());   
                    tokens.add(out());
                } else {
                    tokens.add(integer());
@@ -63,8 +64,12 @@ public class Lexer {
         return tokens;
    }
 
-   private Token out() {
+   private Token outSeperator() {
         p++;
+        return new Token(TokenType.OUT_SEPARATOR, null, position());
+   }
+
+   private Token out() {
         p++;
         return new Token(TokenType.OUT, null, position());
    }

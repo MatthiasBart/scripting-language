@@ -1,14 +1,14 @@
 proc(a b | c) { |
-    a->
-    b->
-    c->
+    -> a
+    -> b
+    -> c
     c = "hallo"
-    c ->
+    -> c
 }
 
 { a |
     a = 3
-    a ->
+    -> a
     proc(2+2 a | a)
-    a->
+    -> a
 }

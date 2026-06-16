@@ -16,13 +16,41 @@ public class ParserTests {
     public static void exec() {
         System.out.println("\nParser:");
 
-        test("out statement", "{ | 5 -> }", prog -> {
-            List<Statement> stmts = prog.body().statements();
-            assert stmts.size() == 1 : "expected 1 statement";
-            assert stmts.get(0) instanceof OutStatement : "expected OutStatement";
-            OutStatement out = (OutStatement) stmts.get(0);
+        test("out statement intlit", "{ | -> 5 }", prog -> {
+            OutStatement out = (OutStatement) prog.body().statements().get(0);
             assert out.expression() instanceof IntegerLiteral : "expression should be IntegerLiteral";
             assert ((IntegerLiteral) out.expression()).value() == 5 : "value should be 5";
+        });
+
+        test("out statement strlit ", "{ | -> \"hello world\" }", prog -> {
+            OutStatement out = (OutStatement) prog.body().statements().get(0);
+            assert out.expression() instanceof StringLiteral : "expression should be StringLiteral";
+            assert ((StringLiteral) out.expression()).value().equals("hello world") : "value should be hello world";
+        });
+
+        test("out statement identifier ", "{ x | x = 5 -> x }", prog -> {
+            OutStatement out = (OutStatement) prog.body().statements().get(1);
+            assert out.expression() instanceof Identifier : "expression should be Identifier";
+            assert ((Identifier) out.expression()).name().equals("x") : "name should be 'x'";
+        });
+
+        test("out statement pair lit", "{ | -> [ 1 | 2 ] }", prog -> {
+            OutStatement out = (OutStatement) prog.body().statements().get(0);
+            assert out.expression() instanceof PairLiteral : "expression should be PairLiteral";
+            PairLiteral pair = (PairLiteral) out.expression();
+            assert pair.left() instanceof IntegerLiteral : "pair left should be IntegerLiteral";
+            assert ((IntegerLiteral) pair.left()).value() == 1 : "pair left should be 1";
+            assert pair.right() instanceof IntegerLiteral : "pair right should be IntegerLiteral";
+            assert ((IntegerLiteral) pair.right()).value() == 2 : "pair right should be 2";
+        });
+
+        test("out statement infix", "{ | -> 1 + 2 }", prog -> {
+            OutStatement out = (OutStatement) prog.body().statements().get(0);
+            assert out.expression() instanceof Infix : "expression should be Infix";
+            Infix plus = (Infix) out.expression();
+            assert plus.operator().type() == TokenType.PLUS : "expected PLUS";
+            assert ((IntegerLiteral) plus.left()).value() == 1 : "left should be 1";
+            assert ((IntegerLiteral) plus.right()).value() == 2 : "right should be 2";
         });
 
         test("empty body", "{ | }", prog -> {
