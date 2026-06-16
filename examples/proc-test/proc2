@@ -1,5 +1,0 @@
-proc2(x y | z) { |
-  print(x | )
-  print(y | )
-  add(x y | z)
-}

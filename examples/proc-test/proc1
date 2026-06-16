@@ -1,3 +1,0 @@
-proc1(x y | ) { |
-  print(x | )
-}
