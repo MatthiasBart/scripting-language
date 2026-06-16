@@ -2,6 +2,7 @@ package parser.test;
 
 import lexer.Lexer;
 import lexer.tokens.Token;
+import lexer.tokens.TokenType;
 import parser.*;
 import parser.expressions.*;
 import parser.statements.*;
@@ -244,6 +245,48 @@ public class ParserTests {
             assert loopStmts.size() == 2 : "loop body has 2 statements";
             assert loopStmts.get(0) instanceof Assignment : "first loop stmt should be Assignment";
             assert loopStmts.get(1) instanceof LoopBreak : "second loop stmt should be LoopBreak";
+        });
+
+        test("infix PLUS", "{ | a = 1 + 2 }", prog -> {
+            Infix plus = (Infix) ((Assignment) prog.body().statements().get(0)).expression();
+            assert plus.operator().type() == TokenType.PLUS : "expected PLUS";
+            assert ((IntegerLiteral) plus.left()).value() == 1 : "left should be 1";
+            assert ((IntegerLiteral) plus.right()).value() == 2 : "right should be 2";
+        });
+
+        test("infix MULT", "{ | b = 3 * 4 }", prog -> {
+            Infix mult = (Infix) ((Assignment) prog.body().statements().get(0)).expression();
+            assert mult.operator().type() == TokenType.MULT : "expected MULT";
+            assert ((IntegerLiteral) mult.left()).value() == 3 : "left should be 3";
+            assert ((IntegerLiteral) mult.right()).value() == 4 : "right should be 4";
+        });
+
+        test("infix DIV", "{ | c = 5 / 6 }", prog -> {
+            Infix div = (Infix) ((Assignment) prog.body().statements().get(0)).expression();
+            assert div.operator().type() == TokenType.DIV : "expected DIV";
+            assert ((IntegerLiteral) div.left()).value() == 5 : "left should be 5";
+            assert ((IntegerLiteral) div.right()).value() == 6 : "right should be 6";
+        });
+
+        test("infix EQ", "{ | d = 7 ~ 8 }", prog -> {
+            Infix eq = (Infix) ((Assignment) prog.body().statements().get(0)).expression();
+            assert eq.operator().type() == TokenType.EQ : "expected EQ";
+            assert ((IntegerLiteral) eq.left()).value() == 7 : "left should be 7";
+            assert ((IntegerLiteral) eq.right()).value() == 8 : "right should be 8";
+        });
+
+        test("infix LT", "{ | e = 9 < 10 }", prog -> {
+            Infix lt = (Infix) ((Assignment) prog.body().statements().get(0)).expression();
+            assert lt.operator().type() == TokenType.LT : "expected LT";
+            assert ((IntegerLiteral) lt.left()).value() == 9 : "left should be 9";
+            assert ((IntegerLiteral) lt.right()).value() == 10 : "right should be 10";
+        });
+
+        test("infix GT", "{ | f = 11 > 12 }", prog -> {
+            Infix gt = (Infix) ((Assignment) prog.body().statements().get(0)).expression();
+            assert gt.operator().type() == TokenType.GT : "expected GT";
+            assert ((IntegerLiteral) gt.left()).value() == 11 : "left should be 11";
+            assert ((IntegerLiteral) gt.right()).value() == 12 : "right should be 12";
         });
 
         testThrows("error: missing separator", "{ x }");
