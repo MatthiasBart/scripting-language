@@ -62,12 +62,13 @@ Grammer:
 <infix> ::= <intlit> + <intlit> 
 | <intlit> - <intlit>
 | <intlit> * <intlit>
-| <intlit> / <intlit>.
+| <intlit> / <intlit>
+| <strlit> + <strlit>.
 ```
 
 Difference from our language to the one described in the assignment
 * instead of builtin procedures for arithmetics, IO and pairs handling added new language elements:
-  * infix operators, +, -, *, /
+  * infix operators, +, -, *, / for integers, + for string concatenation
   * out statement, `-> <expr>`
   * in statement, `<name> <-` to read a string from stdin
   * pair accessor, `<name>.<intlit>`, 0 to access left expression, 1 to access right expression

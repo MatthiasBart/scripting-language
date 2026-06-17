@@ -178,9 +178,16 @@ public class Evaluator {
         throw new EvaluationException("Unknown expression type");
     }
 
-    private IntegerRepresentation evaluate(Infix infix) {
+    private ValueRepresentation evaluate(Infix infix) {
         ValueRepresentation left = evaluate(infix.left());
         ValueRepresentation right = evaluate(infix.right());
+
+        if (infix.operator().type() == lexer.tokens.TokenType.PLUS) {
+            // string concatenation if both of the operands are strings
+            if (left instanceof StringRepresentation && right instanceof StringRepresentation) {
+                return new StringRepresentation(left.toString() + right.toString());
+            }
+        }
 
         if (!(left instanceof IntegerRepresentation && right instanceof IntegerRepresentation)) {
             throw new EvaluationException("Trying to infix two non integer values is not supported",infix.operator());
