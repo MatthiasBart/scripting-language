@@ -1,0 +1,15 @@
+{ pairs len curr notEmpty |
+    pairs = [ 10 | [ 20 | [ 30 | [ 40 | 0 ] ] ] ]
+    len = 4
+    
+    lp @ { |
+        notEmpty = len > 0
+        notEmpty ? { | 
+            -> pairs.0
+            pairs = pairs.1
+            len = len + -1
+        } : { | 
+            lp ^ 
+        }
+    }
+}
