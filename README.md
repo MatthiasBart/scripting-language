@@ -38,3 +38,38 @@ Every Node of the Tree is evaluated. A dictionary for storing variables and thei
 ## Dev Flow
 
 To adapt the interpreter add/remove/edit the files in the Interpreter, then call `make b` to rebuild the image. To adapt the source that gets interpreted add/remove/edit files in the source directory and again call `make b` afterwards. To execute the interpreter call `make i`. Just copying the source and interpreter files into the directory, compiling and executing should be fast enough for development. 
+
+## Language
+
+Grammer:
+```
+<prog> ::= {<proc>} <body>.
+<proc> ::= <name> '(' {<name>} '|' {<name>} ')' <body>.
+<body> ::= '{' {<name>} '|' {<stmt>} '}'.
+<stmt> ::= <name> '?' <body> [':' <body>]
+| <name> '@' <body>
+| <name> '^'
+| <name> '(' {<expr>} '|' {<name>} ')'
+| <name> '=' <expr>
+| '->' <expr>.
+<expr> ::= <strlit>
+| <intlit>
+| <name>
+| '[' <expr> '|' <expr> ']'
+| '<infix>
+| <name>.<intlit>.
+<infix> ::= <intlit> + <intlit> 
+| <intlit> - <intlit>
+| <intlit> * <intlit>
+| <intlit> / <intlit>.
+```
+
+Difference from our language to the one described in the assignment
+* instead of builtin procedures for arithmetics, IO and pairs handling added new language elements:
+  * infix operators, +, -, *, /
+  * out statement, `-> <expr>`
+  * pair accessor, `<name>.<intlit>`, 0 to access left expression, other int to access right expression
+* <name> identifiers are allowed to be TODO
+* <strlit> string literals TODO
+* <intlit> int literals TODO
+* source is a directory where as a file named "main" is loaded as main and any other file in the dir as included file
