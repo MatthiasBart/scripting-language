@@ -346,6 +346,13 @@ public class ParserTests {
             assert ((IntegerLiteral) gt.right()).value() == 12 : "right should be 12";
         });
 
+        test("in statement", "{ name | name <- }", prog -> {
+            assert prog.body().statements().size() == 1 : "expected 1 statement";
+            assert prog.body().statements().get(0) instanceof InStatement : "expected InStatement";
+            InStatement in = (InStatement) prog.body().statements().get(0);
+            assert in.identifier().name().equals("name") : "identifier should be name";
+        });
+
         testThrows("error: missing separator", "{ x }");
         testThrows("error: unexpected statement token", "{ | = x }");
     }

@@ -18,11 +18,14 @@ public class LexerTests {
         test("@(bar)", TokenType.LOOP_START, TokenType.PROC_PARAM_LEFT, TokenType.IDENTIFIER, TokenType.PROC_PARAM_RIGHT);
         test("? x : y", TokenType.COND_START, TokenType.IDENTIFIER, TokenType.COND_SEPARATOR, TokenType.IDENTIFIER);
         test("lp@{ i | print(x |) } ", TokenType.IDENTIFIER, TokenType.LOOP_START, TokenType.BODY_LEFT, TokenType.IDENTIFIER, TokenType.SEPARATOR, TokenType.IDENTIFIER, TokenType.PROC_PARAM_LEFT, TokenType.IDENTIFIER, TokenType.SEPARATOR, TokenType.PROC_PARAM_RIGHT, TokenType.BODY_RIGHT);
+        test("2 > 1", TokenType.INT, TokenType.GT, TokenType.INT);
+        test("1 < 2", TokenType.INT, TokenType.LT, TokenType.INT);
         test("x ~ y", TokenType.IDENTIFIER, TokenType.EQ, TokenType.IDENTIFIER);
         test("[ 1 | 2 ]", TokenType.PAIR_LEFT, TokenType.INT, TokenType.SEPARATOR, TokenType.INT, TokenType.PAIR_RIGHT);
         test("[ [ 1 | 2 ] | 3 ]", TokenType.PAIR_LEFT, TokenType.PAIR_LEFT, TokenType.INT, TokenType.SEPARATOR, TokenType.INT, TokenType.PAIR_RIGHT, TokenType.SEPARATOR, TokenType.INT, TokenType.PAIR_RIGHT);
         test("x.0", TokenType.IDENTIFIER, TokenType.PAIR_ACCESSOR, TokenType.INT);
         test("x.1", TokenType.IDENTIFIER, TokenType.PAIR_ACCESSOR, TokenType.INT);
+        test("name <-", TokenType.IDENTIFIER, TokenType.IN);
         testPositions("main", """
                 {
                 foo      =

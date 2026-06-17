@@ -10,6 +10,8 @@ import parser.expressions.*;
 import parser.statements.*;
 import parser.Body;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 
 public class Evaluator {
@@ -59,6 +61,8 @@ public class Evaluator {
             evaluate((ProcedureCall) statement);
         } else if (statement instanceof OutStatement) {
             evaluate((OutStatement) statement);
+        } else if (statement instanceof InStatement) {
+            evaluate((InStatement) statement);
         }
     }
 
@@ -67,6 +71,18 @@ public class Evaluator {
                   assignment.identifier(),
                   evaluate(assignment.expression())
           );
+    }
+
+    private static final java.io.BufferedReader stdinReader = new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
+
+    private void evaluate(InStatement inStatement) {
+        try {
+            String input = stdinReader.readLine();
+            if (input == null) input = "";
+            currentEnv.set(inStatement.identifier(), new StringRepresentation(input));
+        } catch (java.io.IOException e) {
+            throw new EvaluationException("Failed to read from stdin", null);
+        }
     }
 
     private void evaluate(Conditional conditional) {

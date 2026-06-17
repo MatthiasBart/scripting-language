@@ -35,6 +35,11 @@ public class Lexer {
                continue;
            }
 
+           if (c == '<' && input.charAt(p + 1) == '-') {
+               tokens.add(in());
+               continue;
+           }
+
            TokenType type = TokenType.fromChar(c);
            if (type != null) {
                tokens.add(new Token(type, null, position()));
@@ -72,6 +77,11 @@ public class Lexer {
    private Token out() {
         p++;
         return new Token(TokenType.OUT, null, position());
+   }
+
+   private Token in() {
+        p += 2;
+        return new Token(TokenType.IN, null, position());
    }
 
    private boolean isDigit() {

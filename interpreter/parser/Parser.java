@@ -178,8 +178,15 @@ public class Parser {
             case TokenType.PROC_PARAM_LEFT -> parseProcedureCallStatement();
             case TokenType.ASSIGNMENT -> parseAssignmentStatement();
             case TokenType.OUT -> parseOutStatement();
+            case TokenType.IN -> parseInStatement();
             default -> throw new ParsingException("Unexpected token at for statement", token);
         };
+    }
+
+    private InStatement parseInStatement() {
+        Identifier identifier = parseIdentifier();
+        checkCurrentTokenTypeAndInc(TokenType.IN);
+        return new InStatement(identifier);
     }
 
     private OutStatement parseOutStatement() {

@@ -24,6 +24,7 @@ public enum TokenType {
     STRING,
     OUT_SEPARATOR,
     OUT,
+    IN,
     INT;
 
     private final String symbol;

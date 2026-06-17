@@ -51,7 +51,8 @@ Grammer:
 | <name> '^'
 | <name> '(' {<expr>} '|' {<name>} ')'
 | <name> '=' <expr>
-| '->' <expr>.
+| '->' <expr>
+| <name> '<-'.
 <expr> ::= <strlit>
 | <intlit>
 | <name>
@@ -68,7 +69,8 @@ Difference from our language to the one described in the assignment
 * instead of builtin procedures for arithmetics, IO and pairs handling added new language elements:
   * infix operators, +, -, *, /
   * out statement, `-> <expr>`
-  * pair accessor, `<name>.<intlit>`, 0 to access left expression, other int to access right expression
+  * in statement, `<name> <-` to read a string from stdin
+  * pair accessor, `<name>.<intlit>`, 0 to access left expression, 1 to access right expression
 * <name> identifiers are allowed to be TODO
 * <strlit> string literals TODO
 * <intlit> int literals TODO
