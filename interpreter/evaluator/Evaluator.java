@@ -23,6 +23,8 @@ public class Evaluator {
 
     private Environment currentEnv = mainEnv;
 
+    private BufferedReader stdinReader = new BufferedReader(new InputStreamReader(System.in));
+
     public Evaluator(Program program) {
         this.program = program;
         this.procedures = new HashMap<>();
@@ -63,6 +65,8 @@ public class Evaluator {
             evaluate((OutStatement) statement);
         } else if (statement instanceof InStatement) {
             evaluate((InStatement) statement);
+        } else if (statement instanceof PairAssignment) {
+            evaluate((PairAssignment) statement);
         }
     }
 
@@ -73,7 +77,22 @@ public class Evaluator {
           );
     }
 
-    private static final java.io.BufferedReader stdinReader = new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
+    private void evaluate(PairAssignment assignment) {
+        ValueRepresentation representation = currentEnv.get(assignment.target().identifier());
+        if (!(representation instanceof PairRepresentation)) {
+            throw new EvaluationException("Cannot assign to field on non-pair value");
+        }
+
+        PairRepresentation pair = (PairRepresentation) representation;
+        ValueRepresentation value = evaluate(assignment.value());
+
+        switch (assignment.target().field()) {
+            case LEFT -> pair.setLeft(value);
+            case RIGHT -> pair.setRight(value);
+            default -> throw new EvaluationException("Unexpected pair field accessor");
+        }
+        ;
+    }
 
     private void evaluate(InStatement inStatement) {
         try {

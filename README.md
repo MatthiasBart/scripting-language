@@ -51,6 +51,7 @@ Grammer:
 | <name> '^'
 | <name> '(' {<expr>} '|' {<name>} ')'
 | <name> '=' <expr>
+| <name>.<intlit> '=' <expr>
 | '->' <expr>
 | <name> '<-'.
 <expr> ::= <strlit>
@@ -71,7 +72,7 @@ Difference from our language to the one described in the assignment
   * infix operators, +, -, *, / for integers, + for string concatenation
   * out statement, `-> <expr>`
   * in statement, `<name> <-` to read a string from stdin
-  * pair accessor, `<name>.<intlit>`, 0 to access left expression, 1 to access right expression
+  * pair accessor, `<name>.<intlit>`, 0 to access left expression, 1 to access right expression (also allowed on left hand side of assignment)
 * <name> identifiers are allowed to be TODO
 * <strlit> string literals TODO
 * <intlit> int literals TODO

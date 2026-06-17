@@ -177,10 +177,19 @@ public class Parser {
             case TokenType.LOOP_BREAK -> parseLoopBreakStatement();
             case TokenType.PROC_PARAM_LEFT -> parseProcedureCallStatement();
             case TokenType.ASSIGNMENT -> parseAssignmentStatement();
+            case TokenType.PAIR_ACCESSOR -> parsePairAssignmentStatement();
             case TokenType.OUT -> parseOutStatement();
             case TokenType.IN -> parseInStatement();
             default -> throw new ParsingException("Unexpected token at for statement", token);
         };
+    }
+
+    private PairAssignment parsePairAssignmentStatement() {
+        Token identifierToken = currentTokenAndInc();
+        PairAccessor target = parsePairAccessor(identifierToken);
+        checkCurrentTokenTypeAndInc(TokenType.ASSIGNMENT);
+        Expression value = parseExpression();
+        return new PairAssignment(target, value);
     }
 
     private InStatement parseInStatement() {

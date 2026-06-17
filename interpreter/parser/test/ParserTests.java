@@ -353,6 +353,16 @@ public class ParserTests {
             assert in.identifier().name().equals("name") : "identifier should be name";
         });
 
+        test("pair assignment", "{ | p.0 = 5 }", prog -> {
+            assert prog.body().statements().size() == 1 : "expected 1 statement";
+            assert prog.body().statements().get(0) instanceof PairAssignment : "expected PairAssignment";
+            PairAssignment pa = (PairAssignment) prog.body().statements().get(0);
+            assert pa.target().identifier().name().equals("p") : "identifier should be p";
+            assert pa.target().field() == parser.expressions.PairAccessor.Field.LEFT : "field should be LEFT";
+            assert pa.value() instanceof IntegerLiteral : "value should be IntegerLiteral";
+            assert ((IntegerLiteral) pa.value()).value() == 5 : "value should be 5";
+        });
+
         testThrows("error: missing separator", "{ x }");
         testThrows("error: unexpected statement token", "{ | = x }");
     }

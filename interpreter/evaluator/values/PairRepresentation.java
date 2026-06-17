@@ -18,6 +18,14 @@ public class PairRepresentation implements ValueRepresentation<Object> {
         return right;
     }
 
+    public void setLeft(ValueRepresentation<?> left) {
+        this.left = left;
+    }
+
+    public void setRight(ValueRepresentation<?> right) {
+        this.right = right;
+    }
+
     @Override
     public Object getValue() {
         return null;
@@ -25,7 +33,6 @@ public class PairRepresentation implements ValueRepresentation<Object> {
 
     @Override
     public void setValue(Object value) {
-
     }
 
     @Override
