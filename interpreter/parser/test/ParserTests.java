@@ -5,6 +5,7 @@ import lexer.tokens.Token;
 import lexer.tokens.TokenType;
 import parser.*;
 import parser.expressions.*;
+import parser.expressions.PairAccessor.Field;
 import parser.statements.*;
 import test.InterpreterTests;
 
@@ -115,6 +116,34 @@ public class ParserTests {
             assert ((IntegerLiteral) inner.left()).value() == 10 : "inner left should be 10";
             assert inner.right() instanceof StringLiteral : "inner right should be StringLiteral";
             assert ((StringLiteral) inner.right()).value().equals("right") : "inner right should be 'right'";
+        });
+
+        test("nested pair deep", "{ | p = [ [ 1 | 2 ] | [ 3 | 4 ] ] }", prog -> {
+            PairLiteral outer = (PairLiteral) ((Assignment) prog.body().statements().get(0)).expression();
+            assert outer.left() instanceof PairLiteral;
+            assert outer.right() instanceof PairLiteral;
+            PairLiteral left = (PairLiteral) outer.left();
+            PairLiteral right = (PairLiteral) outer.right();
+            assert ((IntegerLiteral) left.left()).value() == 1;
+            assert ((IntegerLiteral) left.right()).value() == 2;
+            assert ((IntegerLiteral) right.left()).value() == 3;
+            assert ((IntegerLiteral) right.right()).value() == 4;
+        });
+
+        test("pair accessor", "{ | a = p.0 }", prog -> {
+            Assignment a = (Assignment) prog.body().statements().get(0);
+            assert a.expression() instanceof PairAccessor : "expression should be PairAccessor";
+            PairAccessor pa = (PairAccessor) a.expression();
+            assert pa.identifier().name().equals("p") : "identifier should be p";
+            assert pa.field() == Field.LEFT : "field should be LEFT";
+        });
+
+        test("pair accessor 1", "{ | a = p.1 }", prog -> {
+            Assignment a = (Assignment) prog.body().statements().get(0);
+            assert a.expression() instanceof PairAccessor : "expression should be PairAccessor";
+            PairAccessor pa = (PairAccessor) a.expression();
+            assert pa.identifier().name().equals("p") : "identifier should be p";
+            assert pa.field() == Field.RIGHT : "field should be RIGHT";
         });
 
         test("conditional no else", "{ | cond ? { | } }", prog -> {

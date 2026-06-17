@@ -1,13 +1,21 @@
 package evaluator.values;
 
-import parser.expressions.PairLiteral;
-
 public class PairRepresentation implements ValueRepresentation<Object> {
 
     ValueRepresentation<?> left;
     ValueRepresentation<?> right;
 
-    public PairRepresentation(PairLiteral pairLiteral) {
+    public PairRepresentation(ValueRepresentation<?> left, ValueRepresentation<?> right) {
+        this.left = left;
+        this.right = right;
+    }
+
+    public ValueRepresentation<?> getLeft() {
+        return left;
+    }
+
+    public ValueRepresentation<?> getRight() {
+        return right;
     }
 
     @Override
@@ -22,11 +30,16 @@ public class PairRepresentation implements ValueRepresentation<Object> {
 
     @Override
     public Class<?> getType() {
-        return null;
+        return PairRepresentation.class;
     }
 
     @Override
     public boolean isTruthy() {
-        return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "[" + left.toString() + "|" + right.toString() + "]";
     }
 }

@@ -19,7 +19,10 @@ public class LexerTests {
         test("? x : y", TokenType.COND_START, TokenType.IDENTIFIER, TokenType.COND_SEPARATOR, TokenType.IDENTIFIER);
         test("lp@{ i | print(x |) } ", TokenType.IDENTIFIER, TokenType.LOOP_START, TokenType.BODY_LEFT, TokenType.IDENTIFIER, TokenType.SEPARATOR, TokenType.IDENTIFIER, TokenType.PROC_PARAM_LEFT, TokenType.IDENTIFIER, TokenType.SEPARATOR, TokenType.PROC_PARAM_RIGHT, TokenType.BODY_RIGHT);
         test("x ~ y", TokenType.IDENTIFIER, TokenType.EQ, TokenType.IDENTIFIER);
-
+        test("[ 1 | 2 ]", TokenType.PAIR_LEFT, TokenType.INT, TokenType.SEPARATOR, TokenType.INT, TokenType.PAIR_RIGHT);
+        test("[ [ 1 | 2 ] | 3 ]", TokenType.PAIR_LEFT, TokenType.PAIR_LEFT, TokenType.INT, TokenType.SEPARATOR, TokenType.INT, TokenType.PAIR_RIGHT, TokenType.SEPARATOR, TokenType.INT, TokenType.PAIR_RIGHT);
+        test("x.0", TokenType.IDENTIFIER, TokenType.PAIR_ACCESSOR, TokenType.INT);
+        test("x.1", TokenType.IDENTIFIER, TokenType.PAIR_ACCESSOR, TokenType.INT);
         testPositions("main", """
                 {
                 foo      =

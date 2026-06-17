@@ -138,18 +138,18 @@ public class Parser {
             default -> throw new ParsingException("Expected INT, STRING, [, ] or an IDENTIFIER", token);
         };
 
-        if (isOperator(currentToken())) {
-            left = parseInfix(left);
+        switch (currentToken().type()) { 
+            case EQ, LT, GT, PLUS, DIV, MULT: 
+                left = parseInfix(left);
+                break;
+            case PAIR_ACCESSOR:
+                left = parsePairAccessor(token);
+                break;
+            default:
+                break;
         }
 
         return left;
-    }
-
-    private boolean isOperator(Token token) {
-        return switch (token.type()) {
-            case EQ, LT, GT, PLUS, DIV, MULT -> true;
-            default -> false;
-        };
     }
 
     private PairLiteral parsePairLiteral() {
@@ -158,6 +158,12 @@ public class Parser {
         Expression right = parseExpression();
         checkCurrentTokenTypeAndInc(TokenType.PAIR_RIGHT);
         return new PairLiteral(left, right);
+    }
+
+    private PairAccessor parsePairAccessor(Token identifierToken) {
+        Identifier identifier = new Identifier(identifierToken);
+        checkCurrentTokenTypeAndInc(TokenType.PAIR_ACCESSOR);
+        return new PairAccessor(identifier, currentTokenAndInc());
     }
 
     // ==== Statements ====

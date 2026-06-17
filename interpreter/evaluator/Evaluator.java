@@ -153,6 +153,8 @@ public class Evaluator {
             return evaluate((StringLiteral) expression);
         } else if (expression instanceof PairLiteral) {
             return evaluate((PairLiteral) expression);
+        } else if (expression instanceof PairAccessor) {
+            return evaluate((PairAccessor) expression);
         } else if (expression instanceof Identifier) {
             return currentEnv.get((Identifier) expression);
         }
@@ -191,6 +193,20 @@ public class Evaluator {
     }
 
     private PairRepresentation evaluate(PairLiteral pairLiteral) {
-        return new PairRepresentation(pairLiteral);
+        return new PairRepresentation(evaluate(pairLiteral.left()), evaluate(pairLiteral.right()));
+    }
+
+    private ValueRepresentation evaluate(PairAccessor pairAccessor) {
+        ValueRepresentation value = currentEnv.get(pairAccessor.identifier());
+        if (!(value instanceof PairRepresentation)) {
+            throw new EvaluationException("Cannot access field %s on non-pair value '%s'".formatted(pairAccessor.field(), value));
+        }
+
+        PairRepresentation pair = (PairRepresentation) value;
+        return switch (pairAccessor.field()) {
+            case LEFT -> pair.getLeft();
+            case RIGHT -> pair.getRight();
+            default -> throw new EvaluationException("Unexpected pair field accessor");
+        };
     }
 }

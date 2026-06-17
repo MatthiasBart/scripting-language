@@ -3,6 +3,7 @@ package lexer.tokens;
 public enum TokenType {
     PAIR_LEFT("["),
     PAIR_RIGHT("]"),
+    PAIR_ACCESSOR("."),
     SEPARATOR("|"),
     BODY_LEFT("{"),
     BODY_RIGHT("}"),

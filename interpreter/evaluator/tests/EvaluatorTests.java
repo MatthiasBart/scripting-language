@@ -16,6 +16,7 @@ public class EvaluatorTests {
     public static void exec() {
         System.out.println("Evaluator:");
         test("", "{ | -> 5 }", "5");
+        testException("pair accessor non-pair", "{ a | a = 1 -> a.0 }", "Cannot access field LEFT on non-pair value '1'");
         testFromFiles();
     }
 
