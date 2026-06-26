@@ -3,9 +3,26 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Reads a source folder, separating the single {@code main} file from any additional
+ * include files, and makes their text content available after construction.
+ *
+ * <p>Invariant: after construction, {@code mainContent} is non-null and contains the full
+ * text of the {@code main} file; {@code includesContent} is non-null and maps each include
+ * file's name to its full text.
+ * <p>History constraint: {@code mainContent} and {@code includesContent} are written once
+ * at construction and never change.
+ */
 public class SourceReader {
     private File folder;
 
+    /**
+     * Precondition: {@code folder} is a readable directory containing exactly one file
+     * named {@code main} (readable) and zero or more additional readable files.
+     * Postcondition: {@code mainContent} equals the text of the {@code main} file;
+     * {@code includesContent} maps each non-{@code main} file's name to its text.
+     * Throws {@link IllegalArgumentException} if any precondition is violated.
+     */
     public SourceReader(File folder) {
         if (!folder.isDirectory()) {
             throw new IllegalArgumentException("Not a directory");
@@ -72,10 +89,17 @@ public class SourceReader {
     }
 
 
+    /**
+     * Postcondition: result equals {@code mainContent}, which is non-null after construction.
+     */
     String getMain() {
         return mainContent;
     }
 
+    /**
+     * Postcondition: result equals {@code includesContent}, which is non-null after
+     * construction; keys are file names, values are the corresponding file contents.
+     */
     Map<String, String> getIncludes() {
         return includesContent;
     }

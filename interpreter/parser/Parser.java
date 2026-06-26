@@ -9,6 +9,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+/**
+ * Converts a flat list of {@link Token}s into a {@link Program} AST, consuming tokens
+ * left to right in a single pass.
+ *
+ * <p>Invariant: {@code 0 <= position <= tokens.size()}; the token at {@code position} is
+ * always the next unconsumed token.
+ * <p>History constraint: {@code position} is monotonically non-decreasing.
+ */
 public class Parser {
 
     private final List<Token> tokens;
@@ -19,6 +27,11 @@ public class Parser {
         this.tokens = tokens;
     }
 
+    /**
+     * Postcondition: the result is a {@link Program} whose procedures and main body fully
+     * account for all tokens; {@code position == tokens.size()} on return.
+     * Throws {@link ParsingException} if the token sequence does not conform to the grammar.
+     */
     public Program parse() {
         List<Procedure> procedures = new ArrayList<>();
 

@@ -8,11 +8,22 @@ import lexer.tokens.Token;
 import parser.Parser;
 import parser.Program;
 
+/**
+ * Entry point: wires together {@link SourceReader}, {@link Lexer}, {@link Parser}, and
+ * {@link Evaluator} to run a scripting-language program from a source folder.
+ */
 public class Interpreter {
     private static SourceReader sourceReader;
 
     private static List<Token> tokens = new ArrayList<>();
 
+    /**
+     * Precondition: {@code args} contains exactly one element — a path to a folder that
+     * holds a valid source program.
+     * Postcondition: the program has been fully lexed, parsed, and evaluated; side effects
+     * (output) have been applied to stdout.
+     * Throws {@link IllegalArgumentException} if {@code args.length != 1}.
+     */
     public static void main(String[] args) {
         if (args.length != 1) {
             throw new IllegalArgumentException("Expected 1 argument: folder path to source.");

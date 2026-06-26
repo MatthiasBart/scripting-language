@@ -14,6 +14,14 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 
+/**
+ * Executes a parsed {@link Program} by walking the AST and applying each statement's
+ * semantics to a dynamic environment chain.
+ *
+ * <p>Invariant: {@code currentEnv} is always non-null and is reachable from
+ * {@code mainEnv} via the parent chain ({@code mainEnv} is an ancestor of, or equal to,
+ * {@code currentEnv}).
+ */
 public class Evaluator {
 
     private HashMap<String, Procedure> procedures;
@@ -30,6 +38,12 @@ public class Evaluator {
         this.procedures = new HashMap<>();
     }
 
+    /**
+     * Precondition: {@code program} was supplied at construction and is non-null.
+     * Postcondition: the program's procedures are registered and its main body has been
+     * fully executed; {@code currentEnv == mainEnv}.
+     * Throws {@link EvaluationException} on any semantic error encountered during execution.
+     */
     public void evaluate() {
        evaluate(program);
     }

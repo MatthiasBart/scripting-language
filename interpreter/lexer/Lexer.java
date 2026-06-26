@@ -7,6 +7,13 @@ import lexer.tokens.Token;
 import lexer.tokens.TokenType;
 import lexer.tokens.Position;
 
+/**
+ * Tokenizes a source string into a flat list of {@link Token}s, advancing left to right
+ * through {@code input} exactly once.
+ *
+ * <p>Invariant: {@code 0 <= p <= input.length()} throughout the lifetime of the object.
+ * <p>History constraint: {@code p} and {@code line} are monotonically non-decreasing.
+ */
 public class Lexer {
     int p = 0; // position
     private String input;
@@ -20,6 +27,11 @@ public class Lexer {
         this.fileName = fileName;
     }
 
+    /**
+     * Postcondition: the result contains every token from {@code input}, in source order,
+     * with no input remaining unconsumed ({@code p == input.length()}).
+     * Throws {@link LexerException} on any character the grammar does not recognise.
+     */
     public List<Token> tokenize() {
        List<Token> tokens = new ArrayList<>();
 
